@@ -157,7 +157,7 @@ function RunSummary({ market }: { market: Market }) {
           <dd>{run.provider === 'overpass' ? 'OpenStreetMap' : run.provider === 'google' ? 'Google Places' : 'Fixture data'}</dd>
         </div>
         <div>
-          <dt>API requests</dt>
+          <dt>Requests</dt>
           <dd className="num">{run.provider_requests}</dd>
         </div>
         <div>
