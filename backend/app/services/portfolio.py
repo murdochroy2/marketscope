@@ -28,8 +28,13 @@ def summarize_failure(report: ValidationReport) -> str:
         return f"Missing required columns: {', '.join(report.missing_headers)}"
     if report.duplicate_headers:
         return f"Duplicate columns: {', '.join(report.duplicate_headers)}"
-    noun = "row has" if report.total_row_errors == 1 else "rows have"
-    return f"{report.total_row_errors} {noun} invalid values. Nothing was imported."
+    rows = len({e.row for e in report.row_errors})
+    total = report.total_row_errors
+    problems = "1 problem" if total == 1 else f"{total} problems"
+    where = "1 row" if rows == 1 else f"{rows} rows"
+    if total > len(report.row_errors):
+        where = f"at least {where}"
+    return f"Found {problems} in {where}. Nothing was imported."
 
 
 class PortfolioService:

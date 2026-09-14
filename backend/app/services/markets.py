@@ -101,7 +101,7 @@ class MarketService:
             raise NotFoundError(f"Portfolio upload {command.portfolio_upload_id} does not exist")
 
         market = Market(
-            name=(command.name or "").strip() or f"{city.name} · {datetime.now():%d %b %Y %H:%M}",
+            name=(command.name or "").strip() or f"{city.name} · {datetime.now():%-d %b, %H:%M}",
             city_id=city.id,
             portfolio_upload_id=command.portfolio_upload_id,
             south=boundary.south,
