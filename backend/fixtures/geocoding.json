@@ -1,0 +1,14 @@
+{
+  "source": "OpenStreetMap Nominatim responses captured 2026-09-14",
+  "license": "Data © OpenStreetMap contributors, ODbL 1.0",
+  "addresses": {
+    "itpl main road, whitefield, bengaluru, karnataka, india": {"lat": 12.9957428, "lng": 77.7579489},
+    "24th main road, jp nagar, bengaluru, karnataka, india": {"lat": 12.905049, "lng": 77.5857031},
+    "dr rajkumar road, rajajinagar, bengaluru, karnataka, india": {"lat": 12.9945164, "lng": 77.5553214}
+  },
+  "cities": {
+    "bengaluru|karnataka|india": {"south": 12.8334905, "west": 77.4598797, "north": 13.1426196, "east": 77.7840639},
+    "mumbai|maharashtra|india": {"south": 18.894999, "west": 72.7092035, "north": 19.214999, "east": 73.0292035},
+    "new delhi|delhi|india": {"south": 28.5604008, "west": 77.1663519, "north": 28.6451844, "east": 77.2436519}
+  }
+}
