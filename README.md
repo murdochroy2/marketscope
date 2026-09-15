@@ -57,6 +57,14 @@ Use `make demo` instead of `make api` for a fully offline run. It uses real Open
 make test       # 75 backend tests + 6 frontend tests; no database or network needed
 ```
 
+With only Docker installed, the same suites run in one container. This works the same on Linux, macOS and Windows:
+
+```bash
+docker compose run --rm --build tests
+```
+
+The `tests` service builds from [`Dockerfile.test`](Dockerfile.test), with Python, uv and Node, and copies the source in instead of mounting it. It exits non-zero if any test fails. It has its own profile, so `docker compose up` does not start it.
+
 ### Configuration
 
 All optional. See [`.env.example`](.env.example).
@@ -294,7 +302,7 @@ Interactive docs are served at `http://localhost:8000/docs`. Every error uses on
 
 ## Tests
 
-`make test` runs everything. Neither suite needs Postgres or the network.
+`make test` runs everything, or `docker compose run --rm --build tests` with only Docker. Neither suite needs Postgres or the network.
 
 | Area | What is covered |
 |---|---|

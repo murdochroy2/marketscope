@@ -36,5 +36,12 @@ services:
     ports:
       - "8080:80"
 
+  # Not started by `docker compose up`. Run with: docker compose run --rm --build tests
+  tests:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+
 volumes:
   pgdata:
