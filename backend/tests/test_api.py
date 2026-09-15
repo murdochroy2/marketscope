@@ -28,7 +28,7 @@ async def test_reference_data_is_seeded(client):
     states = (await client.get(f"/countries/{countries[0]['id']}/states")).json()
     assert [s["name"] for s in states] == ["Delhi", "Karnataka", "Maharashtra"]
     slugs = [c["slug"] for c in (await client.get("/categories")).json()]
-    assert slugs == ["supermarket", "hypermarket", "grocery_store", "convenience_store", "pharmacy"]
+    assert slugs == ["supermarket", "grocery_store", "convenience_store", "pharmacy"]
 
 
 async def test_upload_sample_portfolio(client, sample_csv_bytes):
@@ -162,7 +162,7 @@ async def test_create_market_end_to_end(app, client, sample_csv_bytes):
 async def test_geocoding_skips_rows_from_other_cities(app, client):
     content = (
         b"store_name,address,city,state,country,category,latitude,longitude\n"
-        b'Here,"ITPL Main Road, Whitefield",Bangalore,Karnataka,India,Hypermarket,,\n'
+        b'Here,"ITPL Main Road, Whitefield",Bangalore,Karnataka,India,Supermarket,,\n'
         b"Elsewhere,Linking Road,Mumbai,Maharashtra,India,Supermarket,,\n"
     )
     upload = (
@@ -174,7 +174,7 @@ async def test_geocoding_skips_rows_from_other_cities(app, client):
             "/markets",
             json={
                 "city_id": city_id,
-                "category_ids": [categories["hypermarket"]],
+                "category_ids": [categories["supermarket"]],
                 "boundary": KORAMANGALA_BOX,
                 "portfolio_upload_id": upload["id"],
             },

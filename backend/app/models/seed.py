@@ -14,21 +14,14 @@ LOCATIONS: list[dict] = [
     }
 ]
 
-# Neither Google nor OpenStreetMap has a "hypermarket" type, so it maps to the closest
-# large-format retail types on each side. Grocery vs. convenience is similarly fuzzy in
-# Indian OSM data, where many kirana stores are tagged shop=convenience.
+# Every category maps to a native type on both providers. Grocery vs. convenience is fuzzy
+# in Indian OSM data, where many kirana stores are tagged shop=convenience.
 CATEGORIES: list[dict] = [
     {
         "slug": "supermarket",
         "name": "Supermarket",
         "google": ["supermarket"],
         "overpass": ["shop=supermarket"],
-    },
-    {
-        "slug": "hypermarket",
-        "name": "Hypermarket",
-        "google": ["warehouse_store", "wholesaler", "department_store"],
-        "overpass": ["shop=department_store", "shop=wholesale"],
     },
     {
         "slug": "grocery_store",

@@ -75,9 +75,17 @@ def match_nearby(
     # keeps cells slightly larger than the radius, which is the safe direction.
     cell_deg = radius_m / 110_000
     grid: dict[tuple[int, int], list[PointRef]] = defaultdict(list)
+    portfolio, discovered = list(portfolio), list(discovered)
+
+    # One longitude scale for every point. Scaling each point by its own latitude would
+    # shift columns with latitude (in proportion to absolute longitude), so a pair just
+    # under the radius apart could land two columns apart and be missed. The latitude
+    # farthest from the equator gives the smallest scale, which keeps every cell at least
+    # the radius wide on the ground.
+    latitudes = [p.location.lat for p in (*portfolio, *discovered)]
+    lng_scale = max(min((math.cos(math.radians(lat)) for lat in latitudes), default=1.0), 1e-6)
 
     def cell(c: Coordinate) -> tuple[int, int]:
-        lng_scale = max(math.cos(math.radians(c.lat)), 1e-6)
         return (math.floor(c.lat / cell_deg), math.floor(c.lng * lng_scale / cell_deg))
 
     for point in discovered:

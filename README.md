@@ -54,7 +54,7 @@ Use `make demo` instead of `make api` for a fully offline run. It uses real Open
 ### Tests
 
 ```bash
-make test       # 71 backend tests + 6 frontend tests; no database or network needed
+make test       # 75 backend tests + 6 frontend tests; no database or network needed
 ```
 
 ### Configuration
@@ -91,7 +91,7 @@ Blank latitude and longitude together is valid. Those rows are geocoded later.
 ![Setup over the cap](docs/screenshots/2-setup-over-cap.jpg)
 
 - **Location.** Country, State and City are dependent dropdowns fed from seeded tables.
-- **Categories.** Chips for the five seeded categories. They default to the categories present in the chosen portfolio, so the first comparison is like for like.
+- **Categories.** Chips for the four seeded categories. They default to the categories present in the chosen portfolio, so the first comparison is like for like.
 - **Boundary.** Choosing a city fetches its bounding box from Nominatim and caches it in the database, so each city is looked up once. The city's full extent is drawn dashed. The editable rectangle can be resized from its corners and edges and moved from its centre.
 - **Cost guardrail.** The area meter updates on every drag event. Above 30 km² the rectangle and meter turn magenta, the reason is stated under the button, and **Create market** is disabled. The API re-checks the cap using the identical formula.
 - **Live portfolio preview.** Portfolio stores are plotted and recoloured inside or outside as the rectangle moves.
@@ -220,10 +220,11 @@ A row's position relative to the boundary cannot be known before it has coordina
 
 ### Category mapping lives in the database
 
-`category_provider_types` maps each category to one or more provider types.
+`category_provider_types` maps each category to one or more provider types. Four categories are seeded: Supermarket, Grocery Store, Convenience Store and Pharmacy.
 
-- **Hypermarket.** There is no hypermarket type in Google Places or in OpenStreetMap. It maps to `warehouse_store`, `wholesaler` and `department_store` on Google, and to `shop=department_store` and `shop=wholesale` on OSM.
+- **No Hypermarket.** The brief lists Hypermarket as an example, but neither Google Places nor OpenStreetMap has a hypermarket type. The nearest stand-ins, such as wholesale, warehouse and department stores, pull in outlets that are not hypermarkets. The category is left out rather than filled with misleading results. Adding it back is a data migration that inserts the category and its provider types, with no code change.
 - **Grocery Store.** It maps to `shop=grocery` and `shop=greengrocer`. In Indian OSM data, many kirana stores are tagged `shop=convenience` instead.
+- **Portfolio categories are free text.** The two sample rows marked Hypermarket still upload, geocode, classify and match. They just do not pre-select a category chip.
 
 When a place matches several selected categories, the provider's primary type decides, then category order.
 
@@ -235,7 +236,7 @@ A portfolio is a snapshot of the business's estate. Silently importing 197 of 20
 
 A market boundary is an axis-aligned rectangle, and "inside" is four comparisons. Storing four floats keeps setup to stock Postgres, and the geo logic stays in pure Python where it is unit-tested.
 
-The 150 m matching uses haversine over a grid index with cells slightly larger than the radius. Each portfolio store checks nine cells instead of every discovered store. PostGIS would earn its place with arbitrary polygons or cross-market spatial queries.
+The 150 m matching uses haversine over a grid index with cells slightly larger than the radius. Longitude uses one scale for the whole market, so cells keep that size in both directions. Each portfolio store checks nine cells instead of every discovered store. PostGIS would earn its place with arbitrary polygons or cross-market spatial queries.
 
 ---
 
@@ -302,7 +303,7 @@ Interactive docs are served at `http://localhost:8000/docs`. Every error uses on
 | **HTTP resilience** | 429 with `Retry-After`, non-retryable 4xx, HTML with a 200, validator-driven retries, mirror rotation, giving up, budget counting retries, backoff bounds |
 | **Providers** | Nominatim box ordering, address fallback, Overpass query and parsing including way centres, Google circle restriction, field mask, saturation flag |
 | **Discovery** | Dedupe across overlapping tiles, dropping overhang, subdividing saturated tiles, reporting saturation at minimum size, deferred retry pass, persistent failure recorded without aborting, budget exhaustion, per-tile progress, concurrency not changing results |
-| **Classification** | Primary-type category resolution, dropping unselected categories, city aliases, the 150 m match boundary at 149 and 151 m, nearest candidate wins |
+| **Classification** | Primary-type category resolution, dropping unselected categories, city aliases, the 150 m match boundary at 149 and 151 m, the grid index agreeing with brute force for pairs just inside the radius in any direction, nearest candidate wins |
 | **End to end** | Through HTTP on SQLite with fixture providers: seeded reference data, upload success and both failure shapes, suggested boundary, cap refusal, inverted boundary, 404 envelope, and a full market run. The run asserts only selected categories, nothing outside the box, no duplicates, the expected inside and outside split for the sample, three rows geocoded, and FreshMart matched within 150 m. Also covered: rows from other cities are never geocoded |
 | **Frontend** | Area parity with the backend value, normalisation of crossed handles, translation, inclusive edges |
 
@@ -311,7 +312,7 @@ Interactive docs are served at `http://localhost:8000/docs`. Every error uses on
 ## Known limitations and shortcuts
 
 - **The job runner is in-process.** Jobs do not survive a restart. They are marked failed on the next startup rather than resumed, and they do not scale across API replicas. A production build would use a durable queue. The pipeline is already written for that move.
-- **Google Places has not been exercised against the live API.** No billing account was set up for this exercise. The provider is unit-tested against mocked responses shaped after the documented Places API (New), including the request body, field mask and saturation handling. The Google type mapping for Hypermarket should be checked against a live key.
+- **Google Places has not been exercised against the live API.** No billing account was set up for this exercise. The provider is unit-tested against mocked responses shaped after the documented Places API (New), including the request body, field mask and saturation handling.
 - **OpenStreetMap coverage is uneven.** Many shops are unnamed, and they appear as "Unnamed pharmacy" and so on. Some are tagged differently from what the category mapping expects. Google's coverage of Indian retail would be denser.
 - **Geocoding precision is street-level at best.** "80 Feet Road" is kilometres long, so a geocoded row can land in the wrong spot. Rows that fail to geocode are shown as unlocated, not guessed.
 - **Public infrastructure is used directly.** The public Overpass, Nominatim and OSM tile servers are fine for a demo, but their usage policies do not allow production traffic. Production would use a paid provider or a self-hosted instance.
